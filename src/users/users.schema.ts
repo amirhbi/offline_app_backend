@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -18,7 +18,7 @@ export class User {
   @Prop({ select: false })
   password?: string;
 
-  @Prop({ type: [String], default: [] })
+  @Prop({ type: [Types.ObjectId], ref: 'Form', default: [] })
   forms!: string[];
 
   @Prop({ type: [String], default: [] })
