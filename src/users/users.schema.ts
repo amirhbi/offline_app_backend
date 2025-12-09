@@ -26,6 +26,9 @@ export class User {
 
   @Prop({ type: [String], default: [] })
   logs!: string[];
+
+  @Prop({ default: false })
+  backupAllowed?: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

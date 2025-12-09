@@ -1,4 +1,4 @@
-import { IsArray, IsIn, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsIn, IsOptional, IsString } from 'class-validator';
 
 export class UpdateUserDto {
   @IsOptional()
@@ -29,4 +29,8 @@ export class UpdateUserDto {
   @IsOptional()
   @IsArray()
   logs?: string[];
+
+  @IsOptional()
+  @IsBoolean()
+  backupAllowed?: boolean;
 }

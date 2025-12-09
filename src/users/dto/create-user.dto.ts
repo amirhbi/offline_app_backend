@@ -1,4 +1,4 @@
-import { IsArray, IsIn, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsIn, IsOptional, IsString } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
@@ -27,4 +27,8 @@ export class CreateUserDto {
   @IsOptional()
   @IsArray()
   logs?: string[];
+
+  @IsOptional()
+  @IsBoolean()
+  backupAllowed?: boolean;
 }
