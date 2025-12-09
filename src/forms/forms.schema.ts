@@ -22,6 +22,17 @@ export class FormField {
 
 const FormFieldSchema = SchemaFactory.createForClass(FormField);
 
+@Schema({ _id: false })
+export class FormCategory {
+  @Prop({ required: true })
+  name!: string;
+
+  @Prop({ type: [FormFieldSchema], default: [] })
+  fields!: FormField[];
+}
+
+const FormCategorySchema = SchemaFactory.createForClass(FormCategory);
+
 @Schema({ timestamps: true })
 export class Form {
   @Prop({ required: true })
@@ -29,6 +40,9 @@ export class Form {
 
   @Prop({ type: [FormFieldSchema], default: [] })
   fields!: FormField[];
+
+  @Prop({ type: [FormCategorySchema], default: [] })
+  categories?: FormCategory[];
 }
 
 export const FormSchema = SchemaFactory.createForClass(Form);
