@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { FormEntry, FormEntryDocument } from './entries.schema.js';
 import { CreateEntryDto } from './dto/create-entry.dto.js';
+import { UpdateEntryDto } from './dto/update-entry.dto.js';
 
 @Injectable()
 export class EntriesService {
@@ -17,6 +18,14 @@ export class EntriesService {
   async create(formId: string, dto: CreateEntryDto): Promise<FormEntry> {
     const entry = new this.entryModel({ formId, data: dto.data || {} });
     return entry.save();
+  }
+
+  async update(entryId: string, dto: UpdateEntryDto): Promise<FormEntry> {
+    const res = await this.entryModel
+      .findByIdAndUpdate(entryId, { $set: { data: dto.data || {} } }, { new: true, runValidators: true })
+      .lean();
+    if (!res) throw new NotFoundException('Entry not found');
+    return res as unknown as FormEntry;
   }
 
   async remove(entryId: string): Promise<void> {
