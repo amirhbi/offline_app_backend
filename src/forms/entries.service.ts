@@ -11,8 +11,9 @@ export class EntriesService {
     @InjectModel(FormEntry.name) private readonly entryModel: Model<FormEntryDocument>,
   ) {}
 
-  async listByForm(formId: string): Promise<FormEntry[]> {
-    return this.entryModel.find({ formId }).sort({ createdAt: -1 }).lean();
+  async listByForm(formId: string, order?: 'asc' | 'desc'): Promise<FormEntry[]> {
+    const sortOrder = order === 'desc' ? -1 : 1; // default asc (newer at end)
+    return this.entryModel.find({ formId }).sort({ createdAt: sortOrder }).lean();
   }
 
   async create(formId: string, dto: CreateEntryDto): Promise<FormEntry> {

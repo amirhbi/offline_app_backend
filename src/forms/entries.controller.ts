@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards, Query } from '@nestjs/common';
 import { EntriesService } from './entries.service.js';
 import { CreateEntryDto } from './dto/create-entry.dto.js';
 import { UpdateEntryDto } from './dto/update-entry.dto.js';
@@ -10,8 +10,11 @@ export class EntriesController {
   constructor(private readonly entriesService: EntriesService) {}
 
   @Get()
-  list(@Param('formId') formId: string) {
-    return this.entriesService.listByForm(formId);
+  list(
+    @Param('formId') formId: string,
+    @Query('order') order?: 'asc' | 'desc',
+  ) {
+    return this.entriesService.listByForm(formId, order);
   }
 
   @Post()
