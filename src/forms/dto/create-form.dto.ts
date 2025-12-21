@@ -18,4 +18,12 @@ export class CreateFormDto {
   @ValidateNested({ each: true })
   @Type(() => CategoryDto)
   categories?: CategoryDto[];
+
+  @IsOptional()
+  @IsString()
+  pdfDescription?: string;
+
+  @IsOptional()
+  @IsString()
+  pdfImage?: string;
 }

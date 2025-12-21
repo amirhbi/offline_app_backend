@@ -43,6 +43,13 @@ export class Form {
 
   @Prop({ type: [FormCategorySchema], default: [] })
   categories?: FormCategory[];
+
+  // Optional PDF export settings
+  @Prop({ type: String, default: '' })
+  pdfDescription?: string;
+
+  @Prop({ type: String, default: '' })
+  pdfImage?: string; // asset filename
 }
 
 export const FormSchema = SchemaFactory.createForClass(Form);
