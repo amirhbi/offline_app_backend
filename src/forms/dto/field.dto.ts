@@ -6,8 +6,8 @@ export class FieldDto {
   label!: string;
 
   @IsString()
-  @IsIn(['text', 'number', 'date', 'select', 'checkbox'])
-  type!: 'text' | 'number' | 'date' | 'select' | 'checkbox';
+  @IsIn(['text', 'number', 'date', 'select', 'checkbox', 'lookup'])
+  type!: 'text' | 'number' | 'date' | 'select' | 'checkbox' | 'lookup';
 
   @IsOptional()
   @IsBoolean()
@@ -15,4 +15,12 @@ export class FieldDto {
 
   @IsOptional()
   options?: string[];
+
+  @IsOptional()
+  @IsString()
+  lookupFormId?: string;
+
+  @IsOptional()
+  @IsString()
+  lookupSourceField?: string;
 }

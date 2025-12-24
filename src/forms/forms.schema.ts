@@ -3,14 +3,14 @@ import { HydratedDocument } from 'mongoose';
 
 export type FormDocument = HydratedDocument<Form>;
 
-export type FieldType = 'text' | 'number' | 'date' | 'select' | 'checkbox';
+export type FieldType = 'text' | 'number' | 'date' | 'select' | 'checkbox' | 'lookup';
 
 @Schema({ _id: false })
 export class FormField {
   @Prop({ required: true })
   label!: string;
 
-  @Prop({ required: true, enum: ['text', 'number', 'date', 'select', 'checkbox'] })
+  @Prop({ required: true, enum: ['text', 'number', 'date', 'select', 'checkbox', 'lookup'] })
   type!: FieldType;
 
   @Prop({ default: false })
@@ -18,6 +18,12 @@ export class FormField {
 
   @Prop({ type: [String], default: undefined })
   options?: string[];
+
+  @Prop({ type: String, default: undefined })
+  lookupFormId?: string;
+
+  @Prop({ type: String, default: undefined })
+  lookupSourceField?: string;
 }
 
 const FormFieldSchema = SchemaFactory.createForClass(FormField);
