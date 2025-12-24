@@ -22,6 +22,10 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsArray()
+  forms_view?: string[];
+
+  @IsOptional()
+  @IsArray()
   reports?: string[];
 
   @IsOptional()

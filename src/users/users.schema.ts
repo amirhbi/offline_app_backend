@@ -21,6 +21,9 @@ export class User {
   @Prop({ type: [Types.ObjectId], ref: 'Form', default: [] })
   forms!: string[];
 
+  @Prop({ type: [Types.ObjectId], ref: 'Form', default: [] })
+  forms_view!: string[];
+
   @Prop({ type: [String], default: [] })
   reports!: string[];
 

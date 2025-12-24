@@ -24,6 +24,10 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsArray()
+  forms_view?: string[];
+
+  @IsOptional()
+  @IsArray()
   reports?: string[];
 
   @IsOptional()
