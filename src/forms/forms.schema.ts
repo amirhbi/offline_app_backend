@@ -41,8 +41,14 @@ export class Form {
   @Prop({ type: [FormFieldSchema], default: [] })
   fields!: FormField[];
 
+  @Prop({ type: [FormFieldSchema], default: [] })
+  subFields?: FormField[];
+
   @Prop({ type: [FormCategorySchema], default: [] })
   categories?: FormCategory[];
+
+  @Prop({ default: false })
+  hasSubFields?: boolean;
 
   // Optional PDF export settings
   @Prop({ type: String, default: '' })

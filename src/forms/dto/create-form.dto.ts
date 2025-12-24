@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { FieldDto } from './field.dto.js';
 import { CategoryDto } from './category.dto.js';
 
@@ -16,6 +16,12 @@ export class CreateFormDto {
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
+  @Type(() => FieldDto)
+  subFields?: FieldDto[];
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
   @Type(() => CategoryDto)
   categories?: CategoryDto[];
 
@@ -26,4 +32,8 @@ export class CreateFormDto {
   @IsOptional()
   @IsString()
   pdfImage?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  hasSubFields?: boolean;
 }
