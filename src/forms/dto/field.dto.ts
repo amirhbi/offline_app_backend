@@ -6,8 +6,8 @@ export class FieldDto {
   label!: string;
 
   @IsString()
-  @IsIn(['text', 'number', 'date', 'select', 'checkbox', 'lookup'])
-  type!: 'text' | 'number' | 'date' | 'select' | 'checkbox' | 'lookup';
+  @IsIn(['text', 'number', 'date', 'select', 'checkbox', 'lookup', 'exist'])
+  type!: 'text' | 'number' | 'date' | 'select' | 'checkbox' | 'lookup' | 'exist';
 
   @IsOptional()
   @IsBoolean()
