@@ -11,8 +11,8 @@ export class User {
   @Prop({ default: '' })
   nickname?: string;
 
-  @Prop({ required: true, enum: ['admin', 'L3'], default: 'admin' })
-  role!: 'admin' | 'L3';
+  @Prop({ required: true, enum: ['admin', 'l3'], default: 'admin' })
+  role!: 'admin' | 'l3';
 
   // Never select password by default; opt-in when needed
   @Prop({ select: false })

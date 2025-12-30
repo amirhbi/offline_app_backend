@@ -21,7 +21,7 @@ export class AuthController {
     const token = signJwt(
       { sub: (user as any)._id?.toString?.() || (user as any).id, role: user.role },
       process.env.JWT_SECRET || 'dev-secret',
-      7 * 24 * 60 * 60,
+      60 * 24 * 60 * 60,
     );
     return { token };
   }
