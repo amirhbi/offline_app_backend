@@ -6,12 +6,16 @@ import { Form, FormSchema } from './forms.schema.js';
 import { EntriesController } from './entries.controller.js';
 import { EntriesService } from './entries.service.js';
 import { FormEntry, FormEntrySchema } from './entries.schema.js';
+import { UsersModule } from '../users/users.module.js';
 
 @Module({
-  imports: [MongooseModule.forFeature([
-    { name: Form.name, schema: FormSchema },
-    { name: FormEntry.name, schema: FormEntrySchema },
-  ])],
+  imports: [
+    MongooseModule.forFeature([
+      { name: Form.name, schema: FormSchema },
+      { name: FormEntry.name, schema: FormEntrySchema },
+    ]),
+    UsersModule,
+  ],
   controllers: [FormsController, EntriesController],
   providers: [FormsService, EntriesService],
 })
