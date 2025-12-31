@@ -12,7 +12,7 @@ export class UsersService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
-  async findAll(role?: 'admin' | 'l3'): Promise<User[]> {
+  async findAll(role?: 'l2' | 'l3'): Promise<User[]> {
     const query: Record<string, unknown> = {};
     if (role) query.role = role;
     return this.userModel
