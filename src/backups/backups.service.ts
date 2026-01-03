@@ -134,4 +134,33 @@ export class BackupsService {
       } catch {}
     }, 30000);
   }
+
+  async restoreFromBackup(id: string): Promise<{ ok: boolean; counts: { forms: number; entries: number } }> {
+    const b = await this.findOne(id);
+    if (!b || !b.filePath) {
+      throw new Error('Backup not found');
+    }
+    const fp = path.resolve(b.filePath);
+    if (!fs.existsSync(fp)) {
+      throw new Error('File not found');
+    }
+    const gz = fs.readFileSync(fp);
+    const json = zlib.gunzipSync(gz).toString('utf8');
+    const payload = JSON.parse(json) as { users?: any[]; forms?: any[]; entries?: any[] };
+    const forms = Array.isArray(payload.forms) ? payload.forms : [];
+    const entries = Array.isArray(payload.entries) ? payload.entries : [];
+    await this.formModel.deleteMany({}).exec();
+    await this.entryModel.deleteMany({}).exec();
+    let fCount = 0;
+    let eCount = 0;
+    if (forms.length > 0) {
+      const res = await this.formModel.insertMany(forms, { ordered: true });
+      fCount = res.length;
+    }
+    if (entries.length > 0) {
+      const res = await this.entryModel.insertMany(entries, { ordered: true });
+      eCount = res.length;
+    }
+    return { ok: true, counts: { forms: fCount, entries: eCount } };
+  }
 }

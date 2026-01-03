@@ -99,4 +99,14 @@ export class BackupsController {
     }
     return this.backupsService.remove(id);
   }
+
+  @Post(':id/restore')
+  async restore(@Param('id') id: string, @Req() req: any) {
+    const payload = req?.user as { sub?: string; role?: string } | undefined;
+    if (!payload) throw new ForbiddenException('Unauthorized');
+    if (payload.role !== 'super_admin') {
+      throw new ForbiddenException('Not allowed');
+    }
+    return this.backupsService.restoreFromBackup(id);
+  }
 }
