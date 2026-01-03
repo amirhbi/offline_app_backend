@@ -4,6 +4,7 @@ import { ConfigModule } from './config.module.js';
 import { FormsModule } from './forms/forms.module.js';
 import { UsersModule } from './users/users.module.js';
 import { AuthModule } from './auth/auth.module.js';
+import { BackupsModule } from './backups/backups.module.js';
 import * as dotenv from 'dotenv';
 
 // Load environment variables BEFORE using process.env in module metadata
@@ -18,6 +19,7 @@ dotenv.config();
     FormsModule,
     UsersModule,
     AuthModule,
+    BackupsModule,
   ],
 })
 export class AppModule {}

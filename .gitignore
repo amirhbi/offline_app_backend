@@ -11,6 +11,7 @@ lerna-debug.log*
 npm-cache
 node_modules
 dist
+/backups
 dist-ssr
 *.local
 
