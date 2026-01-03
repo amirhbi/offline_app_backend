@@ -9,6 +9,7 @@ import { FormEntry } from '../forms/entries.schema.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as zlib from 'zlib';
+import * as os from 'os';
 
 @Injectable()
 export class BackupsService {
@@ -34,6 +35,23 @@ export class BackupsService {
   async getSchedule(): Promise<BackupSchedule | null> {
     const doc = await this.scheduleModel.findOne().lean().exec();
     return (doc as any) || null;
+  }
+ 
+  private backupDir: string | null = null;
+  private resolveBackupDir(): string {
+    if (this.backupDir) return this.backupDir;
+    const envDir = process.env.BACKUPS_DIR || process.env.DATA_DIR;
+    let dir = envDir ? path.resolve(envDir) : path.resolve(process.cwd(), 'backups');
+    try {
+      fs.mkdirSync(dir, { recursive: true });
+      this.backupDir = dir;
+      return dir;
+    } catch {
+      const fallback = path.join(os.tmpdir(), 'offline_app_backups');
+      fs.mkdirSync(fallback, { recursive: true });
+      this.backupDir = fallback;
+      return fallback;
+    }
   }
 
   async saveSchedule(data: Partial<BackupSchedule>): Promise<BackupSchedule> {
@@ -81,8 +99,7 @@ export class BackupsService {
     const payload = { users, forms, entries };
     const json = JSON.stringify(payload);
 
-    const dir = path.resolve(process.cwd(), 'backups');
-    fs.mkdirSync(dir, { recursive: true });
+    const dir = this.resolveBackupDir();
 
     const stamp = new Date();
     const namePart = `${stamp.getFullYear()}-${String(stamp.getMonth() + 1).padStart(2, '0')}-${String(stamp.getDate()).padStart(2, '0')}_${String(stamp.getHours()).padStart(2, '0')}-${String(stamp.getMinutes()).padStart(2, '0')}-${String(stamp.getSeconds()).padStart(2, '0')}`;
