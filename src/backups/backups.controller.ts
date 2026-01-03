@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Req, UseGuards, ForbiddenException, Param, Res, NotFoundException, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Req, UseGuards, ForbiddenException, Param, Res, NotFoundException, Delete, Body } from '@nestjs/common';
 import { BackupsService } from './backups.service.js';
 import { AuthGuard } from '../auth/auth.guard.js';
 import { UsersService } from '../users/users.service.js';
@@ -33,6 +33,34 @@ export class BackupsController {
       }
     }
     throw new ForbiddenException('Not allowed');
+  }
+
+  @Get('schedule')
+  getSchedule() {
+    return this.backupsService.getSchedule();
+  }
+
+  @Post('schedule')
+  async setSchedule(@Req() req: any, @Body() body: any) {
+    const payload = req?.user as { sub?: string; role?: string } | undefined;
+    if (!payload) throw new ForbiddenException('Unauthorized');
+    if (payload.role !== 'super_admin') {
+      throw new ForbiddenException('Not allowed');
+    }
+    const { auto_backup_enabled, frequency, weekday, monthday, time } = body || {};
+    // Basic validation
+    const enabled = !!auto_backup_enabled;
+    const freq = frequency === 'weekly' || frequency === 'monthly' ? frequency : 'daily';
+    const wd = typeof weekday === 'string' ? weekday : undefined;
+    const md = typeof monthday === 'number' ? monthday : undefined;
+    const tm = typeof time === 'string' ? time : '00:00';
+    return this.backupsService.saveSchedule({
+      enabled,
+      frequency: freq as any,
+      weekday: wd as any,
+      monthday: md,
+      time: tm,
+    } as any);
   }
 
   @Get(':id/download')

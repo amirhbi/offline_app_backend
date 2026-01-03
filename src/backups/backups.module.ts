@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Backup, BackupSchema } from './backups.schema.js';
+import { BackupSchedule, BackupScheduleSchema } from './schedule.schema.js';
 import { BackupsService } from './backups.service.js';
 import { BackupsController } from './backups.controller.js';
 import { User, UserSchema } from '../users/users.schema.js';
@@ -12,6 +13,7 @@ import { UsersModule } from '../users/users.module.js';
   imports: [
     MongooseModule.forFeature([
       { name: Backup.name, schema: BackupSchema },
+      { name: BackupSchedule.name, schema: BackupScheduleSchema },
       { name: User.name, schema: UserSchema },
       { name: Form.name, schema: FormSchema },
       { name: FormEntry.name, schema: FormEntrySchema },
