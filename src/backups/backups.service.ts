@@ -163,4 +163,30 @@ export class BackupsService {
     }
     return { ok: true, counts: { forms: fCount, entries: eCount } };
   }
+
+  async restoreFromBuffer(buffer: Buffer): Promise<{ ok: boolean; counts: { forms: number; entries: number } }> {
+    let jsonStr = '';
+    try {
+      jsonStr = buffer.toString('utf8');
+      JSON.parse(jsonStr);
+    } catch {
+      jsonStr = zlib.gunzipSync(buffer).toString('utf8');
+    }
+    const payload = JSON.parse(jsonStr) as { users?: any[]; forms?: any[]; entries?: any[] };
+    const forms = Array.isArray(payload.forms) ? payload.forms : [];
+    const entries = Array.isArray(payload.entries) ? payload.entries : [];
+    await this.formModel.deleteMany({}).exec();
+    await this.entryModel.deleteMany({}).exec();
+    let fCount = 0;
+    let eCount = 0;
+    if (forms.length > 0) {
+      const res = await this.formModel.insertMany(forms, { ordered: true });
+      fCount = res.length;
+    }
+    if (entries.length > 0) {
+      const res = await this.entryModel.insertMany(entries, { ordered: true });
+      eCount = res.length;
+    }
+    return { ok: true, counts: { forms: fCount, entries: eCount } };
+  }
 }

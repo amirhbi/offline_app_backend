@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Req, UseGuards, ForbiddenException, Param, Res, NotFoundException, Delete, Body } from '@nestjs/common';
+import { Controller, Get, Post, Req, UseGuards, ForbiddenException, Param, Res, NotFoundException, Delete, Body, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { BackupsService } from './backups.service.js';
 import { AuthGuard } from '../auth/auth.guard.js';
 import { UsersService } from '../users/users.service.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import type { Response } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @UseGuards(new AuthGuard())
 @Controller('backups')
@@ -108,5 +109,19 @@ export class BackupsController {
       throw new ForbiddenException('Not allowed');
     }
     return this.backupsService.restoreFromBackup(id);
+  }
+
+  @Post('restore/file')
+  @UseInterceptors(FileInterceptor('file'))
+  async restoreFromFile(@UploadedFile() file: any, @Req() req: any) {
+    const payload = req?.user as { sub?: string; role?: string } | undefined;
+    if (!payload) throw new ForbiddenException('Unauthorized');
+    if (payload.role !== 'super_admin') {
+      throw new ForbiddenException('Not allowed');
+    }
+    if (!file || !file.buffer) {
+      throw new NotFoundException('No file uploaded');
+    }
+    return this.backupsService.restoreFromBuffer(file.buffer);
   }
 }
