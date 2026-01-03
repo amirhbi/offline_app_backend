@@ -23,6 +23,6 @@ export class AuthController {
       process.env.JWT_SECRET || 'dev-secret',
       60 * 24 * 60 * 60,
     );
-    return { token, role: user.role, userData: { role: user.role, username: user.username, nickname: user.nickname, forms: user.forms, forms_view: user.forms_view, reports: user.reports, logs: user.logs }};
+    return { token, role: user.role, userData: { role: user.role, username: user.username, nickname: user.nickname, forms: user.forms, forms_view: user.forms_view, reports: user.reports, logs: user.logs, backupAllowed: user.backupAllowed }};
   }
 }
