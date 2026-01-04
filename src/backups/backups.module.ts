@@ -8,6 +8,7 @@ import { User, UserSchema } from '../users/users.schema.js';
 import { Form, FormSchema } from '../forms/forms.schema.js';
 import { FormEntry, FormEntrySchema } from '../forms/entries.schema.js';
 import { UsersModule } from '../users/users.module.js';
+import { LogsModule } from '../logs/logs.module.js';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { UsersModule } from '../users/users.module.js';
       { name: FormEntry.name, schema: FormEntrySchema },
     ]),
     UsersModule,
+    LogsModule,
   ],
   controllers: [BackupsController],
   providers: [BackupsService],

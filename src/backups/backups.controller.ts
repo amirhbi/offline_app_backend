@@ -25,12 +25,13 @@ export class BackupsController {
     const payload = req?.user as { sub?: string; role?: string } | undefined;
     if (!payload) throw new ForbiddenException('Unauthorized');
     if (payload.role === 'super_admin') {
-      return this.backupsService.createBackup();
+      const user = payload.sub ? await this.usersService.findOne(payload.sub) : null;
+      return this.backupsService.createBackup({ userId: payload.sub, username: user?.username });
     }
     if (payload.sub) {
       const user = await this.usersService.findOne(payload.sub);
       if (user?.backupAllowed) {
-        return this.backupsService.createBackup();
+        return this.backupsService.createBackup({ userId: payload.sub, username: user?.username });
       }
     }
     throw new ForbiddenException('Not allowed');
@@ -98,7 +99,8 @@ export class BackupsController {
         throw new ForbiddenException('Not allowed');
       }
     }
-    return this.backupsService.remove(id);
+    const user = payload.sub ? await this.usersService.findOne(payload.sub) : null;
+    return this.backupsService.remove(id, { userId: payload.sub, username: user?.username });
   }
 
   @Post(':id/restore')
@@ -108,7 +110,8 @@ export class BackupsController {
     if (payload.role !== 'super_admin') {
       throw new ForbiddenException('Not allowed');
     }
-    return this.backupsService.restoreFromBackup(id);
+    const user = payload.sub ? await this.usersService.findOne(payload.sub) : null;
+    return this.backupsService.restoreFromBackup(id, { userId: payload.sub, username: user?.username });
   }
 
   @Post('restore/file')
@@ -122,6 +125,7 @@ export class BackupsController {
     if (!file || !file.buffer) {
       throw new NotFoundException('No file uploaded');
     }
-    return this.backupsService.restoreFromBuffer(file.buffer);
+    const user = payload.sub ? await this.usersService.findOne(payload.sub) : null;
+    return this.backupsService.restoreFromBuffer(file.buffer, { userId: payload.sub, username: user?.username });
   }
 }

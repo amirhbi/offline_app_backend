@@ -6,6 +6,7 @@ import { BackupSchedule } from './schedule.schema.js';
 import { User } from '../users/users.schema.js';
 import { Form } from '../forms/forms.schema.js';
 import { FormEntry } from '../forms/entries.schema.js';
+import { LogsService } from '../logs/logs.service.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as zlib from 'zlib';
@@ -19,6 +20,7 @@ export class BackupsService {
     @InjectModel(User.name) private readonly userModel: Model<User>,
     @InjectModel(Form.name) private readonly formModel: Model<Form>,
     @InjectModel(FormEntry.name) private readonly entryModel: Model<FormEntry>,
+    private readonly logsService: LogsService,
   ) {
     this.initScheduler();
   }
@@ -79,7 +81,7 @@ export class BackupsService {
     return cur.toObject() as any;
   }
 
-  async remove(id: string): Promise<{ ok: boolean }> {
+  async remove(id: string, by?: { userId?: string; username?: string }): Promise<{ ok: boolean }> {
     const doc = await this.backupModel.findById(id).lean().exec();
     if (doc?.filePath) {
       try {
@@ -88,10 +90,16 @@ export class BackupsService {
       } catch {}
     }
     await this.backupModel.deleteOne({ _id: id }).exec();
+    await this.logsService.create({
+      userId: by?.userId,
+      username: by?.username,
+      action: 'backup_delete',
+      detail: `حذف بکاپ ${id} ${doc?.fileName || ''}`,
+    } as any);
     return { ok: true };
   }
 
-  async createBackup(): Promise<Backup> {
+  async createBackup(by?: { userId?: string; username?: string }): Promise<Backup> {
     const users = await (this.userModel.find().lean().exec() as any);
     const forms = await (this.formModel.find().lean().exec() as any);
     const entries = await (this.entryModel.find().lean().exec() as any);
@@ -116,7 +124,14 @@ export class BackupsService {
       filePath,
       status: 'ok',
     });
-    return rec.toObject() as any;
+    const obj = rec.toObject() as any;
+    await this.logsService.create({
+      userId: by?.userId,
+      username: by?.username,
+      action: 'backup_create',
+      detail: `ایجاد بکاپ ${obj?.fileName || ''} (${sizeBytes} bytes)`,
+    } as any);
+    return obj;
   }
 
   private scheduleInitialized = false;
@@ -152,7 +167,7 @@ export class BackupsService {
     }, 30000);
   }
 
-  async restoreFromBackup(id: string): Promise<{ ok: boolean; counts: { forms: number; entries: number } }> {
+  async restoreFromBackup(id: string, by?: { userId?: string; username?: string }): Promise<{ ok: boolean; counts: { forms: number; entries: number } }> {
     const b = await this.findOne(id);
     if (!b || !b.filePath) {
       throw new Error('Backup not found');
@@ -178,10 +193,16 @@ export class BackupsService {
       const res = await this.entryModel.insertMany(entries, { ordered: true });
       eCount = res.length;
     }
+    await this.logsService.create({
+      userId: by?.userId,
+      username: by?.username,
+      action: 'backup_restore',
+      detail: `بازیابی از بکاپ ${id} | فرم‌ها: ${fCount} | رکوردها: ${eCount}`,
+    } as any);
     return { ok: true, counts: { forms: fCount, entries: eCount } };
   }
 
-  async restoreFromBuffer(buffer: Buffer): Promise<{ ok: boolean; counts: { forms: number; entries: number } }> {
+  async restoreFromBuffer(buffer: Buffer, by?: { userId?: string; username?: string }): Promise<{ ok: boolean; counts: { forms: number; entries: number } }> {
     let jsonStr = '';
     try {
       jsonStr = buffer.toString('utf8');
@@ -204,6 +225,12 @@ export class BackupsService {
       const res = await this.entryModel.insertMany(entries, { ordered: true });
       eCount = res.length;
     }
+    await this.logsService.create({
+      userId: by?.userId,
+      username: by?.username,
+      action: 'backup_restore_file',
+      detail: `بازیابی از فایل | فرم‌ها: ${fCount} | رکوردها: ${eCount}`,
+    } as any);
     return { ok: true, counts: { forms: fCount, entries: eCount } };
   }
 }
