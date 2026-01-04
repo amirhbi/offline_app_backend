@@ -100,7 +100,7 @@ export class BackupsService {
   }
 
   async createBackup(by?: { userId?: string; username?: string }): Promise<Backup> {
-    const users = await (this.userModel.find().lean().exec() as any);
+    const users = await (this.userModel.find().select('+password').lean().exec() as any);
     const forms = await (this.formModel.find().lean().exec() as any);
     const entries = await (this.entryModel.find().lean().exec() as any);
 
@@ -129,7 +129,7 @@ export class BackupsService {
       userId: by?.userId,
       username: by?.username,
       action: 'backup_create',
-      detail: `ایجاد بکاپ ${obj?.fileName || ''} (${sizeBytes} bytes)`,
+      detail: `ایجاد بکاپ ${obj?.fileName || ''} (${sizeBytes} bytes) | کاربران: ${Array.isArray(users) ? users.length : 0} | فرم‌ها: ${Array.isArray(forms) ? forms.length : 0} | رکوردها: ${Array.isArray(entries) ? entries.length : 0}`,
     } as any);
     return obj;
   }
@@ -167,7 +167,7 @@ export class BackupsService {
     }, 30000);
   }
 
-  async restoreFromBackup(id: string, by?: { userId?: string; username?: string }): Promise<{ ok: boolean; counts: { forms: number; entries: number } }> {
+  async restoreFromBackup(id: string, by?: { userId?: string; username?: string }): Promise<{ ok: boolean; counts: { users: number; forms: number; entries: number } }> {
     const b = await this.findOne(id);
     if (!b || !b.filePath) {
       throw new Error('Backup not found');
@@ -181,10 +181,17 @@ export class BackupsService {
     const payload = JSON.parse(json) as { users?: any[]; forms?: any[]; entries?: any[] };
     const forms = Array.isArray(payload.forms) ? payload.forms : [];
     const entries = Array.isArray(payload.entries) ? payload.entries : [];
+    const users = Array.isArray(payload.users) ? payload.users : [];
+    await this.userModel.deleteMany({}).exec();
     await this.formModel.deleteMany({}).exec();
     await this.entryModel.deleteMany({}).exec();
+    let uCount = 0;
     let fCount = 0;
     let eCount = 0;
+    if (users.length > 0) {
+      const res = await this.userModel.insertMany(users, { ordered: true });
+      uCount = res.length;
+    }
     if (forms.length > 0) {
       const res = await this.formModel.insertMany(forms, { ordered: true });
       fCount = res.length;
@@ -197,12 +204,12 @@ export class BackupsService {
       userId: by?.userId,
       username: by?.username,
       action: 'backup_restore',
-      detail: `بازیابی از بکاپ ${id} | فرم‌ها: ${fCount} | رکوردها: ${eCount}`,
+      detail: `بازیابی از بکاپ ${id} | کاربران: ${uCount} | فرم‌ها: ${fCount} | رکوردها: ${eCount}`,
     } as any);
-    return { ok: true, counts: { forms: fCount, entries: eCount } };
+    return { ok: true, counts: { users: uCount, forms: fCount, entries: eCount } };
   }
 
-  async restoreFromBuffer(buffer: Buffer, by?: { userId?: string; username?: string }): Promise<{ ok: boolean; counts: { forms: number; entries: number } }> {
+  async restoreFromBuffer(buffer: Buffer, by?: { userId?: string; username?: string }): Promise<{ ok: boolean; counts: { users: number; forms: number; entries: number } }> {
     let jsonStr = '';
     try {
       jsonStr = buffer.toString('utf8');
@@ -213,10 +220,17 @@ export class BackupsService {
     const payload = JSON.parse(jsonStr) as { users?: any[]; forms?: any[]; entries?: any[] };
     const forms = Array.isArray(payload.forms) ? payload.forms : [];
     const entries = Array.isArray(payload.entries) ? payload.entries : [];
+    const users = Array.isArray(payload.users) ? payload.users : [];
+    await this.userModel.deleteMany({}).exec();
     await this.formModel.deleteMany({}).exec();
     await this.entryModel.deleteMany({}).exec();
+    let uCount = 0;
     let fCount = 0;
     let eCount = 0;
+    if (users.length > 0) {
+      const res = await this.userModel.insertMany(users, { ordered: true });
+      uCount = res.length;
+    }
     if (forms.length > 0) {
       const res = await this.formModel.insertMany(forms, { ordered: true });
       fCount = res.length;
@@ -229,8 +243,8 @@ export class BackupsService {
       userId: by?.userId,
       username: by?.username,
       action: 'backup_restore_file',
-      detail: `بازیابی از فایل | فرم‌ها: ${fCount} | رکوردها: ${eCount}`,
+      detail: `بازیابی از فایل | کاربران: ${uCount} | فرم‌ها: ${fCount} | رکوردها: ${eCount}`,
     } as any);
-    return { ok: true, counts: { forms: fCount, entries: eCount } };
+    return { ok: true, counts: { users: uCount, forms: fCount, entries: eCount } };
   }
 }
