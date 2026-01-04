@@ -41,17 +41,26 @@ export class FormsController {
   }
 
   @Post()
-  create(@Body() dto: CreateFormDto) {
-    return this.formsService.create(dto);
+  async create(@Body() dto: CreateFormDto, @Req() req: any) {
+    const payload = req?.user as { sub?: string } | undefined;
+    const byUserId = payload?.sub;
+    const user = byUserId ? await this.usersService.findOne(byUserId) : null;
+    return this.formsService.create(dto, { userId: byUserId, username: user?.username });
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateFormDto) {
-    return this.formsService.update(id, dto);
+  async update(@Param('id') id: string, @Body() dto: UpdateFormDto, @Req() req: any) {
+    const payload = req?.user as { sub?: string } | undefined;
+    const byUserId = payload?.sub;
+    const user = byUserId ? await this.usersService.findOne(byUserId) : null;
+    return this.formsService.update(id, dto, { userId: byUserId, username: user?.username });
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.formsService.remove(id);
+  async remove(@Param('id') id: string, @Req() req: any) {
+    const payload = req?.user as { sub?: string } | undefined;
+    const byUserId = payload?.sub;
+    const user = byUserId ? await this.usersService.findOne(byUserId) : null;
+    return this.formsService.remove(id, { userId: byUserId, username: user?.username });
   }
 }

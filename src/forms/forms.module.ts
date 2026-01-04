@@ -7,6 +7,7 @@ import { EntriesController } from './entries.controller.js';
 import { EntriesService } from './entries.service.js';
 import { FormEntry, FormEntrySchema } from './entries.schema.js';
 import { UsersModule } from '../users/users.module.js';
+import { LogsModule } from '../logs/logs.module.js';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { UsersModule } from '../users/users.module.js';
       { name: FormEntry.name, schema: FormEntrySchema },
     ]),
     UsersModule,
+    LogsModule,
   ],
   controllers: [FormsController, EntriesController],
   providers: [FormsService, EntriesService],
