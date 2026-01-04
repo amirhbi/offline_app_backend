@@ -21,7 +21,7 @@ export class AuthController {
       throw new UnauthorizedException('Invalid credentials');
     }
     const token = signJwt(
-      { sub: (user as any)._id?.toString?.() || (user as any).id, role: user.role },
+      { sub: (user as any)._id?.toString?.() || (user as any).id, role: user.role, username: user.username },
       process.env.JWT_SECRET || 'dev-secret',
       60 * 24 * 60 * 60,
     );
