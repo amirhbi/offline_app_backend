@@ -44,6 +44,9 @@ export class Form {
   @Prop({ required: true })
   name!: string;
 
+  @Prop({ default: 0 })
+  orderPriority?: number;
+
   @Prop({ type: [FormFieldSchema], default: [] })
   fields!: FormField[];
 

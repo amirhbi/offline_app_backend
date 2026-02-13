@@ -14,13 +14,13 @@ export class FormsService {
   ) {}
 
   async findAll(): Promise<Form[]> {
-    return this.formModel.find().sort({ updatedAt: -1 }).lean();
+    return this.formModel.find().sort({ orderPriority: 1, name: 1, updatedAt: -1 }).lean();
   }
 
   async findManyByIds(ids: string[]): Promise<Form[]> {
     return this.formModel
       .find({ _id: { $in: ids } })
-      .sort({ updatedAt: -1 })
+      .sort({ orderPriority: 1, name: 1, updatedAt: -1 })
       .lean();
   }
 

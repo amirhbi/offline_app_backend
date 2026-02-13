@@ -1,11 +1,15 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsBoolean, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { FieldDto } from './field.dto.js';
 import { CategoryDto } from './category.dto.js';
 
 export class CreateFormDto {
   @IsString()
   name!: string;
+
+  @IsOptional()
+  @IsNumber()
+  orderPriority?: number;
 
   @IsOptional()
   @IsArray()
