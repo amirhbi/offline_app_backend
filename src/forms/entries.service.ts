@@ -33,15 +33,15 @@ export class EntriesService {
     const withoutOrder = all.filter((e) => e.order == null && String(e._id) !== entryId);
     const sorted: { _id: any }[] = [...withOrder, ...withoutOrder];
 
-    // Insert target at desired position (clamped to valid range)
-    const pos = Math.max(0, Math.min(targetOrder, sorted.length));
+    // targetOrder is 1-based; convert to 0-based index for splice
+    const pos = Math.max(0, Math.min(targetOrder - 1, sorted.length));
     sorted.splice(pos, 0, { _id: entryId });
 
     await this.entryModel.bulkWrite(
       sorted.map((e, i) => ({
         updateOne: {
           filter: { _id: e._id as any },
-          update: { $set: { order: i } },
+          update: { $set: { order: i + 1 } },
         },
       })),
     );
@@ -58,7 +58,7 @@ export class EntriesService {
       ordered.map((e, i) => ({
         updateOne: {
           filter: { _id: e._id as any },
-          update: { $set: { order: i } },
+          update: { $set: { order: i + 1 } },
         },
       })),
     );
@@ -119,7 +119,7 @@ export class EntriesService {
       ids.map((id, index) => ({
         updateOne: {
           filter: { _id: id as any, formId },
-          update: { $set: { order: index } },
+          update: { $set: { order: index + 1 } },
         },
       })),
     );
