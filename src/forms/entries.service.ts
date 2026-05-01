@@ -14,12 +14,15 @@ export class EntriesService {
   ) {}
 
   async listByForm(formId: string, order?: 'asc' | 'desc'): Promise<FormEntry[]> {
-    const sortOrder = order === 'desc' ? -1 : 1; // default asc (newer at end)
-    return this.entryModel.find({ formId }).sort({ createdAt: sortOrder }).lean();
+    const sortOrder = order === 'desc' ? -1 : 1;
+    const all = await this.entryModel.find({ formId }).sort({ createdAt: sortOrder }).lean();
+    const withOrder = all.filter((e) => e.order != null).sort((a, b) => (a.order! - b.order!) * sortOrder);
+    const withoutOrder = all.filter((e) => e.order == null);
+    return [...withOrder, ...withoutOrder];
   }
 
   async create(formId: string, dto: CreateEntryDto, by?: { userId?: string; username?: string }): Promise<FormEntry> {
-    const entry = new this.entryModel({ formId, data: dto.data || {} });
+    const entry = new this.entryModel({ formId, data: dto.data || {}, ...(dto.order != null ? { order: dto.order } : {}) });
     const saved = await entry.save();
     await this.logsService.create({
       userId: by?.userId,
@@ -31,8 +34,11 @@ export class EntriesService {
   }
 
   async update(entryId: string, dto: UpdateEntryDto, by?: { userId?: string; username?: string }): Promise<FormEntry> {
+    const updateOp: Record<string, any> = { $set: { data: dto.data || {} } };
+    if (dto.order != null) updateOp['$set']['order'] = dto.order;
+    else updateOp['$unset'] = { order: '' };
     const res = await this.entryModel
-      .findByIdAndUpdate(entryId, { $set: { data: dto.data || {} } }, { new: true, runValidators: true })
+      .findByIdAndUpdate(entryId, updateOp, { new: true, runValidators: true })
       .lean();
     if (!res) throw new NotFoundException('Entry not found');
     await this.logsService.create({

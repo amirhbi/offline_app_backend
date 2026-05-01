@@ -8,6 +8,9 @@ export class FormEntry {
   @Prop({ type: Types.ObjectId, ref: 'Form', required: true })
   formId!: string;
 
+  @Prop({ type: Number, required: false })
+  order?: number;
+
   // Flexible data payload keyed by field labels or names
   @Prop({ type: Map, of: MongooseSchema.Types.Mixed, default: {} })
   data!: Record<string, any>;
