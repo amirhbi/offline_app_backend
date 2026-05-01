@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards, Query, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UseGuards, Query, Req } from '@nestjs/common';
 import { EntriesService } from './entries.service.js';
 import { CreateEntryDto } from './dto/create-entry.dto.js';
 import { UpdateEntryDto } from './dto/update-entry.dto.js';
@@ -32,6 +32,11 @@ export class EntriesController {
     const byUserId = payload?.sub;
     const user = byUserId ? await this.usersService.findOne(byUserId) : null;
     return this.entriesService.update(entryId, dto, { userId: byUserId, username: user?.username });
+  }
+
+  @Patch('reorder')
+  async reorder(@Param('formId') formId: string, @Body() body: { ids: string[] }) {
+    return this.entriesService.reorder(formId, body.ids);
   }
 
   @Delete(':entryId')
