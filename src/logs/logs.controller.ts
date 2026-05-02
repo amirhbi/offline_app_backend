@@ -19,7 +19,7 @@ export class LogsController {
     if (!payload || payload.role !== 'super_admin') {
       throw new ForbiddenException('Not allowed');
     }
-    const n = limit ? Math.max(1, Math.min(1000, Number(limit))) : 200;
+    const n = limit ? Math.max(1, Math.min(1000, Number(limit))) : 999999;
     return this.logsService.list(n);
   }
 
